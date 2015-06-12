@@ -27,7 +27,7 @@ impl CachingHandler{
 }
 
 impl ReverseProxyHandler for CachingHandler {
-    fn perform(&self, req: Request, res: Response<Streaming>) -> Vec<u8>{
+    fn perform(&self, req: Request, res: &Response<Streaming>) -> Vec<u8>{
         let path = match req.uri {
             RequestUri::AbsolutePath(ref str) => str.clone(),
             _ => "".to_string()
@@ -42,8 +42,9 @@ impl ReverseProxyHandler for CachingHandler {
 
 impl Handler for CachingHandler {
      fn handle(&self, req: Request, res: Response<Fresh>){
-        let mut res = res.start().unwrap();
-        res.write_all(&self.perform(req, res)[..]).unwrap();
+         let mut res = res.start().unwrap();
+         let content = self.perform(req, &res);
+        res.write_all(&content[..]).unwrap();
         res.end().unwrap();
     }
 }

@@ -13,7 +13,7 @@ use self::core::marker::Sync;
 
 
 pub trait ReverseProxyHandler: Send+Sync{
-    fn perform(&self, Request, Response<Streaming>) -> Vec<u8>;
+    fn perform(&self, Request, &Response<Streaming>) -> Vec<u8>;
 }
 
 // impl Handler for ReverseProxyHandler{
