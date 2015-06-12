@@ -13,10 +13,12 @@ pub trait ReverseProxyHandler: Send+Sync{
     fn perform(&self, Request, &Response<Streaming>) -> Vec<u8>;
 }
 
-// impl Handler for ReverseProxyHandler{
-//     fn handle(&self, req: Request, res: Response<Streaming>){
-//         let mut res = res.start().unwrap();
-//         res.write_all(&self.perform(req, res)).unwrap();
-//         req.end().unwrap();
+// impl Handler for HTTPHandler {
+//      fn handle(&self, req: Request, res: Response<Fresh>){
+//          let mut res = res.start().unwrap();
+//          let content = self.perform(req, &res);
+//         res.write_all(&content[..]).unwrap();
+//         res.end().unwrap();
 //     }
 // }
+
