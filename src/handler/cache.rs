@@ -33,7 +33,7 @@ impl ReverseProxyHandler for CachingHandler {
             _ => "".to_string()
         };
         match self.cache.get(&path){
-            Some(&content) => return content,
+            Some(content) => return content.clone(),
             None => return self.inner.perform(req, res)
         };
 
