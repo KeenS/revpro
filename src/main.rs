@@ -10,20 +10,23 @@ use std::io::Read;
 use hyper::Client;
 //use hyper::header::Connection;
 use hyper::server::Handler;
+use hyper::uri::RequestUri;
 
 struct HTTPHandler;
 
 
 impl Handler for HTTPHandler {
-    fn handle(&self, _: Request, res: Response<Fresh>){
+    fn handle(&self, req: Request, res: Response<Fresh>){
         let mut res = res.start().unwrap();
-
+        let path = match req.uri {
+            RequestUri::AbsolutePath(str) => str,
+            _ => "".to_string()
+        };
         let mut client = Client::new();
-        let mut content = client.get("http://localhost:8080")
+        let mut content = client.get(&format!("{}{}","http://localhost:8080", path))
             .send().unwrap();;
         let mut body = Vec::new();
         content.read_to_end(&mut body).unwrap();
-        println!("{:?}", body);
         res.write_all(&body[..]).unwrap();
         res.end().unwrap();
     }
