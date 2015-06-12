@@ -10,12 +10,13 @@ use self::hyper::Client;
 //use hyper::header::Connection;
 use self::hyper::server::Handler;
 use self::hyper::uri::RequestUri;
+use super::handler::ReverseProxyHandler;
+use self::hyper::net::Streaming;
 
 pub struct HTTPHandler;
 
-impl Handler for HTTPHandler {
-     fn handle(&self, req: Request, res: Response<Fresh>){
-        let mut res = res.start().unwrap();
+impl ReverseProxyHandler for HTTPHandler {
+    fn perform(&self, req: Request, res: Response<Streaming>) -> Vec<u8> {
         let path = match req.uri {
             RequestUri::AbsolutePath(str) => str,
             _ => "".to_string()
@@ -25,7 +26,14 @@ impl Handler for HTTPHandler {
             .send().unwrap();
         let mut body = Vec::new();
         content.read_to_end(&mut body).unwrap();
-        res.write_all(&body[..]).unwrap();
+        return body;
+    }
+}
+
+impl Handler for HTTPHandler {
+     fn handle(&self, req: Request, res: Response<Fresh>){
+        let mut res = res.start().unwrap();
+        res.write_all(&self.perform(req, res)[..]).unwrap();
         res.end().unwrap();
     }
 }
