@@ -14,6 +14,16 @@ pub struct CachingHandler{
     cache: HashMap<String, Vec<u8>>
 }
 
+impl CachingHandler{
+    pub fn new(inner: Box<Handler>) -> CachingHandler{
+        let map = HashMap::new();
+        CachingHandler{
+            inner: inner,
+            cache: map
+        }
+    }
+}
+
 impl Handler for CachingHandler {
     fn handle<'b, 'a>(&'a self, req: Request<'a, 'b>, res: Response<'a, Fresh>){
         let path = match req.uri {
@@ -23,7 +33,7 @@ impl Handler for CachingHandler {
         match self.cache.get(&path){
             Some(content) => {
                 let mut res = res.start().unwrap();
-                res.write_all(content);
+                res.write_all(content).unwrap();
                 res.end().unwrap();
             },
             None => self.inner.handle(req, res)
