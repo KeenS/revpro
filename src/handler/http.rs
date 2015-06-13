@@ -1,22 +1,20 @@
 extern crate hyper;
 
-use std::io::Write;
+use std::io::{Write,Read};
 use std::vec::Vec;
+use self::hyper::Client;
 use self::hyper::server::Request;
 use self::hyper::server::Response;
-use self::hyper::net::Fresh;
-use std::io::Read;
-use self::hyper::Client;
-//use hyper::header::Connection;
 use self::hyper::server::Handler;
+use self::hyper::net::Fresh;
+use self::hyper::net::Streaming;
 use self::hyper::uri::RequestUri;
 use super::handler::ReverseProxyHandler;
-use self::hyper::net::Streaming;
 
 pub struct HTTPHandler;
 
 impl ReverseProxyHandler for HTTPHandler {
-    fn perform(&self, req: Request, res: &Response<Streaming>) -> Vec<u8> {
+    fn perform(&self, req: Request, _: &Response<Streaming>) -> Vec<u8> {
         let path = match req.uri {
             RequestUri::AbsolutePath(str) => str,
             _ => "".to_string()

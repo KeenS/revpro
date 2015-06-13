@@ -1,12 +1,9 @@
 extern crate hyper;
 
-use std::io::Write;
 use std::vec::Vec;
-use self::hyper::server::Handler;
 use self::hyper::server::Request;
 use self::hyper::server::Response;
 use self::hyper::net::Streaming;
-use self::hyper::net::Fresh;
 
 
 pub trait ReverseProxyHandler: Send+Sync{
