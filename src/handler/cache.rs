@@ -3,7 +3,7 @@ extern crate hyper;
 use std::vec::Vec;
 use std::io::Write;
 use std::collections::HashMap;
-use std::sync::{Arc, Mutex};
+use std::sync::Mutex;
 use self::hyper::server::Request;
 use self::hyper::server::Response;
 use self::hyper::net::Fresh;
@@ -14,14 +14,14 @@ use super::handler::ReverseProxyHandler;
 
 pub struct CachingHandler{
     inner: Box<ReverseProxyHandler>,
-    cache: Arc<Mutex<HashMap<String, Vec<u8>>>>
+    cache: Mutex<HashMap<String, Vec<u8>>>
 }
 
 impl CachingHandler{
     pub fn new(inner: Box<ReverseProxyHandler>) -> CachingHandler{
         CachingHandler{
             inner: inner,
-            cache: Arc::new(Mutex::new(HashMap::new()))
+            cache: Mutex::new(HashMap::new())
         }
     }
 }
@@ -33,13 +33,13 @@ impl ReverseProxyHandler for CachingHandler {
             _ => "".to_string()
         };
         let mut cache = self.cache.lock().unwrap();
-        let content = match cache.get(&path){
-            Some(content) => content.clone(),
-            None => self.inner.perform(req, res)
+        match cache.get(&path) {
+            Some(content) => return content.clone(),
+            None => ()
         };
+        let content =  self.inner.perform(req, res);
         cache.insert(path, content.clone());
         return content;
-
     }
 }
 
